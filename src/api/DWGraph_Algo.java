@@ -2,21 +2,32 @@ package api;
 
 import com.google.gson.*;
 import gameClient.util.Point3D;
-
-
 import java.io.*;
 import java.util.*;
 
 
+/**
+ * DwGraph_Algo class implements the dw_graph_algo interface of exploring directed weighted graphs.
+ * The class uses the DWGraph_DS to create a directed weighted graph structure to implement the algorithms to apply on the graph.
+ * Class Methods:
+    * Constructor
+    * Init - initializing the graph structure to perform the methods.
+    * getGraph - returns the graph which is manipulated.
+    * copy - computes a deep copy of a graph
+    * isConnected - a two part method that uses the BFS method as well to check connectivity.
+    * shortestPath - a method to calculate the shortest path between two nodes and return a List of it.
+    * shortestPathDist - calculating the distance between two nodes and returns the double value of it.
+    * save - creates a new Json file format to a relative filepath (by default in the repository) with the data of the specific graph.
+    * load - loads a new DWGraph_Algo object from a Jsom file format.
+ */
 
-@SuppressWarnings("ALL")
+
+
 public class DWGraph_Algo implements dw_graph_algorithms {
 
     private directed_weighted_graph algo;
-    private static final String VISITED = "V";
-    private static final String UNVISITED = "U";
 
-
+    //// Constructors
     public DWGraph_Algo() {
         algo = new DWGraph_DS();
     }
@@ -25,6 +36,10 @@ public class DWGraph_Algo implements dw_graph_algorithms {
         algo = new DWGraph_DS(G);
     }
 
+    /**
+     * Initialize the directed_weighted_graph to a DWGraph_Algo to implement the methods on.
+     * @param g - an object that implements the directed_weighted_graph interface to init the methods on.
+     */
     @Override
     public void init(directed_weighted_graph g) {
         this.algo = g;
@@ -35,171 +50,124 @@ public class DWGraph_Algo implements dw_graph_algorithms {
         return algo;
     }
 
+    /**
+     * copy creates a new DWGraph_DS deep copy of the DWGraph_Algo that the function was executed on.
+     * @return a new DWGraph_DS with the exact data as the other one.
+     */
     @Override
     public directed_weighted_graph copy() {
         return new DWGraph_DS(algo);
     }
 
-
-
-
-    /** Updated*/
+    /**
+     * isConnected method uses the BFS algorithm while iterating over all of the nodes existing in the graph.
+     * given the graph that's being explored using this method complexity is high.
+     * @return true iff it is possible to reach all the nodes from every node.
+     */
     @Override
     public boolean isConnected() {
-        node_data check = algo.getV().iterator().next();
-        if (algo.nodeSize() == 0 || algo.nodeSize() == 1) {
-            return true;
+        for (node_data v : algo.getV()) {
+            if (!BFS(v.getKey())) {
+                return false;
+            }
         }
-        if (this.algo.nodeSize() > this.algo.edgeSize() + 1) {
-            return false;
-        }
-
-        directed_weighted_graph t = transposedGraph(algo);
-        return Bfs(algo, check) && Bfs(t, check);
+        setGraph();
+        return true;
     }
 
-
     /**
-     * Need To Fix
+     * calculates the double value of the distance between two nodes. usnig the shortestPath method to obtain the List of the shortest path and sizing it.
+     * @param src - start node.
+     * @param dest - end (target) node.
+     * @return - the size of the list that is the shortest path.
      */
     @Override
     public double shortestPathDist(int src, int dest) {
         if (src == dest) return 0;
-//        if (shortestPath(src, dest) != null) return shortestPath(src, dest).size();
-        node_data source = algo.getNode(src);
-        node_data destination = algo.getNode(dest);
-        HashMap<node_data,Double> tags = new HashMap<>();
-        HashMap<Integer, Integer>prev = new LinkedHashMap<>();
-        prev.put(src,-1);
-        setGraph(Double.POSITIVE_INFINITY);
-        PriorityQueue<node_data> pq = new PriorityQueue<>((o1, o2) -> {
-            double a = o1.getWeight()-o2.getWeight();
-            if(a > 0) return 1;
-            if(a < 0) return -1;
-            return 0;
-        });
-        pq.add(source);
-        while (!pq.isEmpty()){
-            node_data p=pq.poll();
-
-        }
-
+        if (shortestPath(src, dest) != null) return shortestPath(src, dest).size();
         return -1.0;
     }
+
+    /**
+     * Calculating the shortest path between two nodes using Dijkstra's algorithm to explore the graph.
+     * Dijkstra's algorithm is simplified by these steps:
+        * Set the distance for the current node to 0 (its own weight rather than its edges weight).
+        * Set all distances (in this case the weight of the edge to infinty) for each node in the graph.
+        * Visit all of the current node neighbors with the smallest known distance.
+        * If the current known distance is smaller thanthe last known distance update the distance to the current distance.
+        * Update the previous node for each of the updated distances
+        * Add the current node to the list of visited nodes
+        * Repeat all previous steps until all nodes are marked as visited.
+     * @param src - start node
+     * @param dest - end (target) node
+     * @return a list containing the path of the path. {v/in V | the vertex in the path }
+     */
 
     @Override
     public List<node_data> shortestPath(int src, int dest) {
 
-
-        setGraph(Double.POSITIVE_INFINITY);
-
-        node_data start = algo.getNode(src);
-        start.setWeight(0);
-        PriorityQueue<node_data> pq = new PriorityQueue<>((o1, o2) -> {
-            double a = o1.getWeight()-o2.getWeight();
-            if(a > 0) return 1;
-            if(a < 0) return -1;
-            return 0;
-        });
+        List<node_data> ans = new ArrayList<>(); // the list to contain the path
+        if(src == dest) return ans; // the path of a node to itself equals to 0 therefore the list is empty
+        if(algo.getNode(src) == null || algo.getNode(dest) == null) return null;
 
 
-        List<node_data> ans = new ArrayList<>();
-         HashMap<node_data,Double> tags = new HashMap<>();
-         HashMap<Integer, Integer>prev = new LinkedHashMap<>();
+        for (node_data v : algo.getV()) {
+            v.setWeight(Double.POSITIVE_INFINITY);
+            v.setTag(-1);
+        } // setting all the vertices in the graph to a distance (weight) value of infinty and the tag to -1 (unvisited)
+        node_data start = algo.getNode(src); // drawing the source node_data
+        start.setWeight(0); // setting its weight to 0
+        PriorityQueue<node_data> pq = new PriorityQueue<>((o1, o2) -> (int) (o1.getWeight() - o2.getWeight())); // the queue prioritize the next node to be explored by comparing the weight of distances
+        HashMap<Integer, node_data> prev = new HashMap<>(); // a hashmap is used to determain the last node that the current node was sent from (the shortest path to it).
         pq.add(start);
 
-        prev.put(src, -1);
-
+        prev.put(src, start); // updates the current node last source
         while (!pq.isEmpty()) {
             node_data current = pq.remove();
             current.setTag(0);
             for (edge_data e : algo.getE(current.getKey())) {
-                node_data neighbor = algo.getNode(e.getDest());
+                node_data neighbor = algo.getNode(e.getDest()); // drawing the neighbors of the current node.
                 if (neighbor.getTag() == -1) {
-                    double w = current.getWeight() + e.getWeight();
-                    if (neighbor.getWeight() > w) {
+                    double w = current.getWeight() + e.getWeight(); // updating the edge of the node to its
+                    if (neighbor.getWeight() > w) { // in case the known weight of the neighbor is greater
                         neighbor.setWeight(w);
                         neighbor.setTag(0);
                         pq.add(neighbor);
 
-                        prev.put(neighbor.getKey(), current.getKey());
+                        prev.put(neighbor.getKey(), current); // updating the last know node with the shortest weight
                     }
-                }
+                } // if the neighbor wasn't visited yet
+            } // for each node we explore its neighbors (being a directed graph there's a need to check the outward edges)
+        } // while the queue isn't empty
+        if (prev.get(dest) == null) return null;
+        while (prev.get(dest).getWeight() < Double.POSITIVE_INFINITY) { // the path
+            ans.add(algo.getNode(dest));
+            dest = prev.get(dest).getKey();
+            if (algo.getNode(dest).getKey() == src) {
+                ans.add(algo.getNode(src));
+                break;
             }
         }
-
-
-        /**
-         * Need To Fix
-         */
-//        if (prev.get(dest) == null) return null;
-//        while (prev.get(dest).getWeight() < Double.POSITIVE_INFINITY) {
-//            ans.add(algo.getNode(dest));
-//            dest = prev.get(dest).getKey();
-//            if (algo.getNode(dest).getKey() == src) {
-//                ans.add(algo.getNode(src));
-//                break;
-//            }
-//        }
-        Collections.reverse(ans);
+        Collections.reverse(ans); // the list us updated using the hashmap of the last know node, so inorder to get the currect path we reverse it.
         return ans;
     }
 
-//    public  List<node_data> shortestPath(int src, int dest) {
-//        HashMap<node_data, Double> distances = new HashMap<>();
-//        Queue<node_data> q = new PriorityQueue<>(Comparator.comparingDouble(distances::get));
-//        HashMap<node_data, node_data> father = new HashMap<>();//this hashmap is using to recover the path
-//        setGraph();//init all the tags to -1
-//        node_data start = algo.getNode(src);
-//        node_data end = algo.getNode(dest);
-//        if (start == null || end == null) return null;
-//        if (src == dest) {//if true then returns a list with only the start node
-//            List<node_data> temp = new LinkedList<>();
-//            temp.add(start);
-//            return temp;
-//        }
-//        node_data Ni_node;
-//        node_data curr;
-//        distances.put(start, 0.0);//the distance between node to itself is 0
-//        start.setTag(1);
-//        q.add(start);
-//        boolean flag = false;
-//        while (!q.isEmpty()&&!flag) {
-//            curr = q.poll();//take a node
-//            if(curr.getKey()==dest)
-//                flag=true;
-//            for (edge_data edge : algo.getE(curr.getKey())) {//run for all of his Ni
-//                Ni_node = algo.getNode(edge.getDest());
-//                if (Ni_node.getTag() == -1) {//if the Ni never got visited
-//                    distances.put(Ni_node, (distances.get(curr) + edge.getWeight()));//the tag of this node is his father tag(recursive)+the weight of the edge who connects between the father to him.
-//                    father.put(Ni_node, curr);//the HashMap builds in this path--> <the neighbor, his father>
-//                    q.add(Ni_node);//O(logV)
-//                    Ni_node.setTag(1);
-//                } else {//if the Ni already got visited
-//                    //take the minimum between the Ni tag to the new path that found.
-//                    double temp = Math.min(distances.get(Ni_node), distances.get(curr) + edge.getWeight());
-//                    if (temp != distances.get(Ni_node)) {//if the new path is better
-//                        father.put(Ni_node, curr);//set the new father of Ni
-//                        distances.put(Ni_node, temp);//set the new path of Ni
-//                        q.add(Ni_node);//for update the list, yes i know there will be duplicate nodes inside the q
-//                    }
-//                }
-//            }
-//
-//        }
-//        if (!flag) {//if there is no path then return null
-//            return new LinkedList<>();
-//        }
-//        return buildPath(father,end);//builds path using `buildPath` and return this list
-//    }
+    /**
+     * This method saves a DWGraph_Algo object in a Json format file containing the information of all other objects used to create the graph.
+     * The graph is saved as a Json object to which we assign JsonArrays containing Json objects that make the graph (edge_data, node_data).
+     * Gson library is used to manipulate the JSON format into a File and using the FileWriter to write to the new File created.
+     * @param file - the file name (may include a relative path) of the location to save the Json File. (inside project directory if a path wasn't assigned)
+     * @return true iff the process of saving the file was accomplished.
+     */
+
     @Override
     public boolean save(String file) {
 
         try {
-            Gson convertedGraph = new Gson();
-            JsonObject json_graph = new JsonObject();
-            JsonArray json_vertices = new JsonArray();
-            JsonArray json_edges = new JsonArray();
+            Gson convertedGraph = new Gson(); // creating the Gson object to convert java object DWGraph_Algo to a Json format.
+            JsonObject json_graph = new JsonObject(); // Json object to accept the graph characteristic in json format
+            JsonArray json_vertices = new JsonArray(); // json array to contain the node_data information
+            JsonArray json_edges = new JsonArray(); // json array to contain the edge_data information
             for (node_data v : this.algo.getV()) {
                 JsonObject node = new JsonObject();
                 node.addProperty("pos", v.getLocation().x() + "," + v.getLocation().y() + "," + v.getLocation().z());
@@ -211,11 +179,11 @@ public class DWGraph_Algo implements dw_graph_algorithms {
                     edge.addProperty("w", e.getWeight());
                     edge.addProperty("dest", e.getDest());
                     json_edges.add(edge);
-                }
+                } // for each edge_data of the current node adding the properties of it to the JsonArray
                 json_graph.add("Edges", json_edges);
                 json_graph.add("Nodes", json_vertices);
 
-            }
+            } // iterating over the graph nodes and create each one as a Json object to be added to the overall graph Json
             File graphFile = new File(file);
             FileWriter saved_graph = new FileWriter(file);
             saved_graph.write(convertedGraph.toJson(json_graph));
@@ -229,32 +197,39 @@ public class DWGraph_Algo implements dw_graph_algorithms {
 
     }
 
+    /**
+     * This method loads a new DWGraph_Algo java object from a Json file format. Using FileReader to extract the information in the json text format a new JsonParser is created
+     * to convert the text to an Object. Using the methods of Gson library the JsonArrays are created from the file that is read to devide it to the elements that compose the graph (edge_data,node_data).
+     * @param file - file name of JSON file (could also be the file path).
+     * @return true iff the load of the new DWGraph_Algo was successful.
+     */
+
     @Override
     public boolean load(String file) {
         try {
-            FileReader graph_tl = new FileReader(file);
-            JsonObject json_graph = new JsonParser().parse(graph_tl).getAsJsonObject();
-            JsonArray loaded_edges = json_graph.getAsJsonArray("Edges");
-            JsonArray loaded_vertices = json_graph.getAsJsonArray("Nodes");
-            directed_weighted_graph loaded_graph = new DWGraph_DS();
+            FileReader graph_tl = new FileReader(file); // file reader to extract the information from
+            JsonObject json_graph = new JsonParser().parse(graph_tl).getAsJsonObject(); // creating the Json object by parsing it by the values and keys
+            JsonArray loaded_edges = json_graph.getAsJsonArray("Edges"); // create the JsonArray by the value "Edges"
+            JsonArray loaded_vertices = json_graph.getAsJsonArray("Nodes"); //create the JsonArray by the value "Nodes"
+            directed_weighted_graph loaded_graph = new DWGraph_DS(); // the new graph to assign the data to.
 
             for (JsonElement node : loaded_vertices) {
-                node_data n = new NodeData(((JsonObject) node).get("id").getAsInt());
-                String location = ((JsonObject) node).get("pos").getAsString();
-                String[] xyz = location.split(",");
-                Point3D nLocation = new Point3D(Double.parseDouble(xyz[0]), Double.parseDouble(xyz[1]), Double.parseDouble(xyz[2]));
-                n.setLocation(nLocation);
-                loaded_graph.addNode(n);
+                node_data n = new NodeData(((JsonObject) node).get("id").getAsInt()); // creating the new NodeData by the value of its "id"
+                String location = ((JsonObject) node).get("pos").getAsString(); // the 3DPoint field of the NodeData is an object on its own so in a json format it is bounded with {}
+                String[] xyz = location.split(","); // for the 3DPoint object the String[] holds the x,y,z positions
+                Point3D nLocation = new Point3D(Double.parseDouble(xyz[0]), Double.parseDouble(xyz[1]), Double.parseDouble(xyz[2])); // converting the String info to the double value of it to create a new 3DPoint object.
+                n.setLocation(nLocation); // assign the location to the node.
+                loaded_graph.addNode(n); // adding it to the graph
             }
 
             for (JsonElement edge : loaded_edges) {
-                int src = ((JsonObject) edge).get("src").getAsInt();
-                double w = ((JsonObject) edge).get("w").getAsDouble();
-                int dest = ((JsonObject) edge).get("dest").getAsInt();
-                edge_data json_edge = new EdgeData(src, dest, w);
-                loaded_graph.connect(json_edge.getSrc(), json_edge.getDest(), json_edge.getWeight());
+                int src = ((JsonObject) edge).get("src").getAsInt(); // source of the edge
+                double w = ((JsonObject) edge).get("w").getAsDouble(); // weight of the edge
+                int dest = ((JsonObject) edge).get("dest").getAsInt(); // destination of the edge
+                edge_data json_edge = new EdgeData(src, dest, w); // new EdgeData object based on the info extracted from the json text.
+                loaded_graph.connect(json_edge.getSrc(), json_edge.getDest(), json_edge.getWeight()); // connecting the nodes in the graph
 
-            }
+            } // iterating over the JsonArray for the edge_data to add to the graph
             this.algo = loaded_graph;
             return true;
 
@@ -269,67 +244,57 @@ public class DWGraph_Algo implements dw_graph_algorithms {
         return algo.toString();
     }
 
+    /**
+     * BFS algorithm to explore the graph.
+     * @param src - the node (vertex) from which the algorithm starts to explore from.
+     * @return true iff it's possible to reach all of the vertices in the graph from the given vertex.
+     */
 
+    private boolean BFS(int src) {
+        if (algo.nodeSize() == 0 || algo.nodeSize() == 1) {
+            return true;
+        } // a graph with only one vertex is connected.
+        if (this.algo.nodeSize() > this.algo.edgeSize() + 1) {
+            return false;
+        } // if in a directed graph the number of vertices is greater than the edges number even by 1 the graph isn't connected.
+        setGraph(); // setting the node tags to -1 (unvisited)
+        int counter = 0;
+        Queue<node_data> q = new LinkedList<>(); // queue to hold the nodes to be explored
+        node_data v = algo.getNode(src); // the first node to start to algorithm from
+        v.setTag(0); // setting its tag to 0 (visited)
 
-
-
-
-
-
-
-    /** Added new methods for better complexity*/
-
-    private boolean Bfs(directed_weighted_graph g, node_data src) {
-        VisitedOrNot(UNVISITED, g);
-        BFS(src, g);
-        for (node_data v : g.getV()) {
-            if (v.getInfo() == UNVISITED) return false;
-        }
-        return true;
-    }
-
-    private void BFS(node_data src, directed_weighted_graph g) {
-        Queue<node_data> q = new LinkedList<>();
-        node_data v = src;
-        v.setInfo(VISITED);
-        q.add(v);
+        q.add(v); // adding it to the queue
         while (!q.isEmpty()) {
-            node_data current = q.poll();
-            for (edge_data e : g.getE(current.getKey())) {
-                node_data w = g.getNode(e.getDest());
-                if (w.getInfo() == UNVISITED) {
-                    q.add(w);
-                    w.setInfo(VISITED);
+            node_data current = q.poll(); // extract the current node from the queue
+            counter++;
+            for (edge_data e : algo.getE(current.getKey())) { // iterating over the current node OUT degree edges
+                node_data w = algo.getNode(e.getDest()); // current node neighbor
+                if (w.getTag() == -1) { // if it hadn't been visited yet
+                    q.add(w); // add it to the queue
+                    w.setTag(0); // mark him as visited
                 }
             }
         }
-
+        if (counter == algo.nodeSize()) { // the amount of times that we extract a node from the graph needs to be the same amount of vertices in the graph.
+            return true;
+        }
+        return false;
     }
 
-    private void setGraph(double w) {
+    /**
+     * Setting the graphs' nodes tags to -1 to mark them as unvisited for both BFS and shortestPath methods.
+     */
+
+    private void setGraph() {
         for (node_data u : algo.getV()) {
-            u.setWeight(w);
+            u.setTag(-1);
         }
     }
 
-    private directed_weighted_graph transposedGraph(directed_weighted_graph g) {
-        directed_weighted_graph answer = new DWGraph_DS();
-        for (node_data i : g.getV()) {
-            answer.addNode(new NodeData(i.getKey()));
-        }
-        for (node_data i : g.getV()) {
-            for (edge_data e : g.getE(i.getKey())) {
-                answer.connect(e.getDest(), i.getKey(), e.getWeight());
-            }
-        }
-        return answer;
-    }
-
-    private void VisitedOrNot(String str, directed_weighted_graph g) {
-        for (node_data v : g.getV()) {
-            v.setInfo(str);
+    private void setWeights(double weights) {
+        for (node_data v : algo.getV()) {
+            v.setWeight(weights);
+            v.setTag(-1);
         }
     }
-
-    /** Until  here are all the added methods*/
 }
