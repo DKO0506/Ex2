@@ -4,6 +4,18 @@ package api;
 import java.io.Serializable;
 import java.util.Objects;
 
+/**
+ * EdgeData class implements the edge_data interface representing an edge in a graph.
+ * Each edge in a graph has a source from which it came from and a destination. The edge also has a weight
+ * which will be used to determine shortest paths from two different nodes in the graph, and as well in the Game part of the repository.
+ * Methods:
+    * Constructor.
+    * Getters / Setters
+    * equals between two EdgeData objects.
+    * compare between two EdgeData objects.
+ *
+ */
+
 public class EdgeData implements edge_data, Serializable,Comparable<EdgeData> {
 
     private int source;
@@ -19,7 +31,7 @@ public class EdgeData implements edge_data, Serializable,Comparable<EdgeData> {
         this.weight = w;
     }
 
-
+    //// Setter & Getters :
     @Override
     public int getSrc() {
         return this.source;
@@ -55,6 +67,11 @@ public class EdgeData implements edge_data, Serializable,Comparable<EdgeData> {
         this.tag = t;
     }
 
+    /**
+     * boolean method two check quality between two EdgeData objects.
+     * @param o - the object to weight against equality.
+     * @return - true iff (if and only if) both edge are equal.
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -82,7 +99,11 @@ public class EdgeData implements edge_data, Serializable,Comparable<EdgeData> {
                 '}';
     }
 
-
+    /**
+     * comparing between two EdgeData objects for use in DWGraph_Algo methods.
+     * @param o - the EdgeData object to compare with based on edges weight.
+     * @return - 1 if 1st edge is heavier than the other and -1 vice versa.
+     */
 
     @Override
     public int compareTo( EdgeData o) {

@@ -2,6 +2,20 @@ package api;
 
 import java.util.*;
 
+/**
+ * DWGraph_DS class represents a graph using a HashMap of key Integer and node_data as value, through the field
+ * Vertices. In directed graphs there are two types of edges connecting the different vertices, for that there are two separated
+ * HashMaps both for incoming edges and outgoing edges.
+ * The different methods to be performed in a graph:
+ * Constructors / Copy constructor (deep copy)
+ * Adding a node to the graph.
+ * Obtain a vertex (node_data) by its index.
+ * Connect between different nodes (a connection isn't bidirectional).
+ * Obtain an edge information by its source and destination.
+ * Obtain the information regarding all edges that are related to a given node (both out and in).
+ * Deleting edges/nodes from the graph.
+ */
+
 
 public class DWGraph_DS implements directed_weighted_graph {
 
@@ -13,6 +27,10 @@ public class DWGraph_DS implements directed_weighted_graph {
     private int V;
     private int E;
     private int MC;
+
+    /**
+     * Constructor and Copy constructor:
+     */
 
     public DWGraph_DS() {
         Vertices = new HashMap<>();
@@ -42,11 +60,22 @@ public class DWGraph_DS implements directed_weighted_graph {
         this.MC = other.getMC();
     }
 
-
+    /**
+     * getNode method returns the reference to the node_data by its unique key in the graph.
+     * @param key - the node_id
+     * @return the node in the graph by its key
+     */
     @Override
     public node_data getNode(int key) {
         return Vertices.get(key);
     }
+
+    /**
+     * getEdge returns the reference to the edge between two vertices in the graph
+     * @param src - the vertex from which the edge is directed from.
+     * @param dest - the vertex which the edge is directed to.
+     * @return edge_data between them.
+     */
 
     @Override
     public edge_data getEdge(int src, int dest) {
@@ -62,6 +91,11 @@ public class DWGraph_DS implements directed_weighted_graph {
 
     }
 
+    /**
+     * Adds the node_data to the HashMap of the vertices.
+     * @param n - the new vertex in the graph.
+     */
+
     @Override
     public void addNode(node_data n) {
 //        if (Vertices.containsKey(n.getKey())) {
@@ -74,6 +108,14 @@ public class DWGraph_DS implements directed_weighted_graph {
         MC++;
         V++;
     }
+
+    /**
+     * connect method is creates a new edge between two vertices in the graph. for a directed graph the edge is represented as in an ordered pair,
+     * (src,dest) which are the end points of the edge.
+     * @param src - the source of the edge.
+     * @param dest - the destination of the edge.
+     * @param w - positive weight representing the cost (aka time, price, etc) between src-->dest.
+     */
 
     @Override
     public void connect(int src, int dest, double w) {
@@ -93,17 +135,31 @@ public class DWGraph_DS implements directed_weighted_graph {
 
     }
 
+    /**
+     * getV return a colection of all the node_data representing the graph vertices.
+     * @return Collection<node_data>.
+     */
     @Override
     public Collection<node_data> getV() {
         return Vertices.values();
     }
 
+    /**
+     * getE returns all the edges related to a given vertex.
+     * @param node_id - the vertex to extract the information about.
+     * @return - Collection<edge_data>
+     */
     @Override
     public Collection<edge_data> getE(int node_id) {
 
         return outDegree.get(node_id).values();
     }
 
+    /**
+     * Removes a node_data from the graph structure including all referenced edges connected to it and from it.
+     * @param key - the node_data to remove.
+     * @return - deleted node from the graph.
+     */
     @Override
     public node_data removeNode(int key) {
 
@@ -120,6 +176,12 @@ public class DWGraph_DS implements directed_weighted_graph {
         return removedNode;
     }
 
+    /**
+     * Removes the edge between two nodes
+     * @param src - the source of the edge
+     * @param dest - the destination of the edge
+     * @return the deleted edge_data
+     */
     @Override
     public edge_data removeEdge(int src, int dest) {
         boolean outEdge = outDegree.get(src).containsKey(dest);
