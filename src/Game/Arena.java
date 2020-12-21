@@ -17,7 +17,8 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- *
+ * This class represents a multi Agents Arena which move on a graph - grabs Pokemons and avoid the Zombies.
+ * @author boaz.benmoshe
  *
  */
 @SuppressWarnings("ALL")
