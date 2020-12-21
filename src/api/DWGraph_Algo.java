@@ -26,15 +26,13 @@ import java.util.*;
 public class DWGraph_Algo implements dw_graph_algorithms {
 
     private directed_weighted_graph algo;
-
+    private static final String VISITED = "V";
+    private static final String UNVISITED = "U";
     //// Constructors
     public DWGraph_Algo() {
         algo = new DWGraph_DS();
     }
 
-    public DWGraph_Algo(directed_weighted_graph G) {
-        algo = new DWGraph_DS(G);
-    }
 
     /**
      * Initialize the directed_weighted_graph to a DWGraph_Algo to implement the methods on.
@@ -66,13 +64,16 @@ public class DWGraph_Algo implements dw_graph_algorithms {
      */
     @Override
     public boolean isConnected() {
-        for (node_data v : algo.getV()) {
-            if (!BFS(v.getKey())) {
-                return false;
-            }
+        node_data check = algo.getV().iterator().next();
+        if (algo.nodeSize() == 0 || algo.nodeSize() == 1) {
+            return true;
         }
-        setGraph();
-        return true;
+        if (this.algo.nodeSize() > this.algo.edgeSize() + 1) {
+            return false;
+        }
+
+        directed_weighted_graph t = transposedGraph(algo);
+        return Bfs(algo, check) && Bfs(t, check);
     }
 
     /**
@@ -250,51 +251,91 @@ public class DWGraph_Algo implements dw_graph_algorithms {
      * @return true iff it's possible to reach all of the vertices in the graph from the given vertex.
      */
 
-    private boolean BFS(int src) {
-        if (algo.nodeSize() == 0 || algo.nodeSize() == 1) {
-            return true;
-        } // a graph with only one vertex is connected.
-        if (this.algo.nodeSize() > this.algo.edgeSize() + 1) {
-            return false;
-        } // if in a directed graph the number of vertices is greater than the edges number even by 1 the graph isn't connected.
-        setGraph(); // setting the node tags to -1 (unvisited)
-        int counter = 0;
-        Queue<node_data> q = new LinkedList<>(); // queue to hold the nodes to be explored
-        node_data v = algo.getNode(src); // the first node to start to algorithm from
-        v.setTag(0); // setting its tag to 0 (visited)
+//    private boolean BFS(int src) {
+//        if (algo.nodeSize() == 0 || algo.nodeSize() == 1) {
+//            return true;
+//        } // a graph with only one vertex is connected.
+//        if (this.algo.nodeSize() > this.algo.edgeSize() + 1) {
+//            return false;
+//        } // if in a directed graph the number of vertices is greater than the edges number even by 1 the graph isn't connected.
+//        setGraph(); // setting the node tags to -1 (unvisited)
+//        int counter = 0;
+//        Queue<node_data> q = new LinkedList<>(); // queue to hold the nodes to be explored
+//        node_data v = algo.getNode(src); // the first node to start to algorithm from
+//        v.setTag(0); // setting its tag to 0 (visited)
+//
+//        q.add(v); // adding it to the queue
+//        while (!q.isEmpty()) {
+//            node_data current = q.poll(); // extract the current node from the queue
+//            counter++;
+//            for (edge_data e : algo.getE(current.getKey())) { // iterating over the current node OUT degree edges
+//                node_data w = algo.getNode(e.getDest()); // current node neighbor
+//                if (w.getTag() == -1) { // if it hadn't been visited yet
+//                    q.add(w); // add it to the queue
+//                    w.setTag(0); // mark him as visited
+//                }
+//            }
+//        }
+//        if (counter == algo.nodeSize()) { // the amount of times that we extract a node from the graph needs to be the same amount of vertices in the graph.
+//            return true;
+//        }
+//        return false;
+//    }
 
-        q.add(v); // adding it to the queue
+//    /**
+//     * Setting the graphs' nodes tags to -1 to mark them as unvisited for both BFS and shortestPath methods.
+//     */
+
+    private boolean Bfs(directed_weighted_graph g, node_data src) {
+        VisitedOrNot(UNVISITED, g);
+        BFS(src, g);
+        for (node_data v : g.getV()) {
+            if (v.getInfo() == UNVISITED) return false;
+        }
+        return true;
+    }
+
+    private void BFS(node_data src, directed_weighted_graph g) {
+        Queue<node_data> q = new LinkedList<>();
+        node_data v = src;
+        v.setInfo(VISITED);
+        q.add(v);
         while (!q.isEmpty()) {
-            node_data current = q.poll(); // extract the current node from the queue
-            counter++;
-            for (edge_data e : algo.getE(current.getKey())) { // iterating over the current node OUT degree edges
-                node_data w = algo.getNode(e.getDest()); // current node neighbor
-                if (w.getTag() == -1) { // if it hadn't been visited yet
-                    q.add(w); // add it to the queue
-                    w.setTag(0); // mark him as visited
+            node_data current = q.poll();
+            for (edge_data e : g.getE(current.getKey())) {
+                node_data w = g.getNode(e.getDest());
+                if (w.getInfo() == UNVISITED) {
+                    q.add(w);
+                    w.setInfo(VISITED);
                 }
             }
         }
-        if (counter == algo.nodeSize()) { // the amount of times that we extract a node from the graph needs to be the same amount of vertices in the graph.
-            return true;
-        }
-        return false;
+
     }
 
-    /**
-     * Setting the graphs' nodes tags to -1 to mark them as unvisited for both BFS and shortestPath methods.
-     */
-
-    private void setGraph() {
+    private void setGraph(double w) {
         for (node_data u : algo.getV()) {
-            u.setTag(-1);
+            u.setWeight(w);
         }
     }
 
-    private void setWeights(double weights) {
-        for (node_data v : algo.getV()) {
-            v.setWeight(weights);
-            v.setTag(-1);
+    private directed_weighted_graph transposedGraph(directed_weighted_graph g) {
+        directed_weighted_graph answer = new DWGraph_DS();
+        for (node_data i : g.getV()) {
+            answer.addNode(new NodeData(i.getKey()));
+        }
+        for (node_data i : g.getV()) {
+            for (edge_data e : g.getE(i.getKey())) {
+                answer.connect(e.getDest(), i.getKey(), e.getWeight());
+            }
+        }
+        return answer;
+    }
+
+    private void VisitedOrNot(String str, directed_weighted_graph g) {
+        for (node_data v : g.getV()) {
+            v.setInfo(str);
         }
     }
+
 }
