@@ -1,28 +1,31 @@
 package Game;
 
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
-import java.awt.*;
-import java.io.File;
-import java.io.IOException;
 
 public class ImageLoader extends JPanel {
 
-    private Image backgroundImage;
-
-    private ImageLoader()throws IOException {
-
-
-        backgroundImage = ImageIO.read(new File("Pics\\forest.jpg"));
+    private JFrame frame;
+    private ImageIcon icon;
+    private JLabel label;
 
 
 
+    public ImageLoader(){
+        frame=new JFrame("Game");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        try {
+            icon=new ImageIcon(getClass().getResource("forest.jpg"));
+            label=new JLabel(icon);
+            frame.add(label);
+        }catch (Exception e){
+            System.out.println("Nope");
+        }
+        frame.pack();
+        frame.setVisible(true);
     }
-    public void paintComponent(Graphics g) {
-        super.paintComponent(g);
 
-        // Draw the background image.
-        g.drawImage(backgroundImage, 0, 0, this);
+    public static void main(String[] args) {
+        ImageLoader i=new ImageLoader();
     }
 }

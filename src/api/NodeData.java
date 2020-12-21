@@ -15,6 +15,7 @@ public class NodeData implements node_data, Comparable {
     public NodeData(int id) {
         this.key = id;
         this.nodeLocation = new Point3D(0, 0, 0);
+        info="";
     }
     public NodeData(int id,geo_location g) {
         this.key=id;
@@ -85,7 +86,7 @@ public class NodeData implements node_data, Comparable {
         return "NodeData{" +
                 "key=" + key +
                 ", tag=" + tag +
-                ", weight=" + weight +
+                ", info='" + info + '\'' +
                 '}';
     }
 

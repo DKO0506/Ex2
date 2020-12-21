@@ -24,19 +24,17 @@ public class DWGraph_DS implements directed_weighted_graph {
     }
 
     public DWGraph_DS(directed_weighted_graph other) {
-        Vertices = new HashMap<>();
-        outDegree = new LinkedHashMap<>();
-        inDegree = new LinkedHashMap<>();
+//        Vertices = new HashMap<>();
+//        outDegree = new LinkedHashMap<>();
+//        inDegree = new LinkedHashMap<>();
         for (node_data v : other.getV()) {
             node_data u = new NodeData(v);
             this.addNode(u);
         }
 
         for (node_data v : getV()) {
-            if (other.getE(v.getKey()) != null) {
                 for (edge_data e : other.getE(v.getKey())) {
                     this.connect(v.getKey(), e.getDest(), e.getWeight());
-                }
             }
         }
         this.V = other.nodeSize();
@@ -156,7 +154,7 @@ public class DWGraph_DS implements directed_weighted_graph {
         String ans = "|V|=" + nodeSize() + ",|E|=" + edgeSize() + ",ModeCount=" + getMC() + "\n";
 
         for (node_data v : getV()) {
-            ans += v.getKey() + ": ";
+            ans +="Info :" + v.getInfo() +  v.getKey() + ": ";
             for (edge_data e : getE(v.getKey())) {
                 ans += "{<V:" + e.getSrc() + ",E:" + e.getDest() + ",W:" + e.getWeight() + ">},";
             }

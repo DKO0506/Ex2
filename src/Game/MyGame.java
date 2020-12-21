@@ -8,6 +8,7 @@ import com.google.gson.JsonObject;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.awt.*;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -233,6 +234,9 @@ public class MyGame implements Runnable {
     }
 
     void initialize(game_service game) {
+        Dimension d=Toolkit.getDefaultToolkit().getScreenSize();
+        int w=d.width;
+        int h=d.height;
         myArena = new Arena();
         algo = new DWGraph_Algo();
         algo.init(graphFJson(game.getGraph()));
@@ -241,7 +245,7 @@ public class MyGame implements Runnable {
         myPokemons = (Arena.json2Pokemons(game.getPokemons()));
         myArena.setPokemons(myPokemons);
         window = new Window("Ex2");
-        window.setSize(700, 500);
+        window.setSize(w, h);
         window.update(myArena);
         window.setVisible(true);
         mapsConfig(graph);

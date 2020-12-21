@@ -4,17 +4,11 @@ import api.directed_weighted_graph;
 import api.edge_data;
 import api.geo_location;
 import api.node_data;
-
-import gameClient.CL_Agent;
-import gameClient.CL_Pokemon;
-
 import gameClient.util.Range;
 import gameClient.util.Range2D;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.File;
-import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 
@@ -26,25 +20,23 @@ import java.util.List;
  * code and not to take it "as is".
  */
 public class Window extends JFrame {
-    private int _ind;
     private Arena _ar;
     private gameClient.util.Range2Range _w2f;
     private Image bufferImage;
     private Graphics bufferGraphics;
-    private ImageLoader loader;
 
     Window(String a) {
         super(a);
-        int _ind = 0;
         this.setTitle("Ex2");
-        this.setBackground(Color.white);
         this.setVisible(true);
-
-
+//        this.setSize(1000,800);
+        Dimension d=Toolkit.getDefaultToolkit().getScreenSize();
+        int w=d.width;int h=d.height;
+        this.setSize(w/2,h/2);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
     }
 
-    public void update(Arena ar) {
+     void update(Arena ar) {
         this._ar = ar;
         updateFrame();
     }
@@ -75,12 +67,12 @@ public class Window extends JFrame {
         drawGraph(bufferGraphics);
         drawAgants(bufferGraphics);
         drawInfo(bufferGraphics);
-        drawBackGround(bufferGraphics);
-        bufferGraphics.setFont(new Font("name", Font.PLAIN, 16));
+        bufferGraphics.setFont(new Font("name", Font.BOLD, 15));
         geo_location geo = _w2f.getFrame().fromPortion(new Point3D(0, 0, 0));
         int pX = (int) geo.x();
         int pY = (int) geo.y();
-        bufferGraphics.setColor(Color.BLACK);
+        bufferGraphics.setColor(new Color(128, 0, 141, 255));
+
         bufferGraphics.drawString("Moves:" + _ar.getTotalMoves() + "  Score:" + _ar.getScore() + "  Level: "
                 + _ar.getLevel() + "  Time to end: " + _ar.getTimer() / 1000 + " sec", pX, pY - 4);
 
@@ -95,28 +87,13 @@ public class Window extends JFrame {
 
     }
 
-    private void drawBackGround(Graphics g) {
-        try {
-            final Image backgroundImage = javax.imageio.ImageIO.read(new File("Pics\\forest.jpg"));
-            setContentPane(new JPanel(new BorderLayout()) {
-                @Override public void paintComponent(Graphics g) {
-                    g.drawImage(backgroundImage, 0, 0, null);
-                }
-            });
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-
-
 
     private void drawGraph(Graphics g) {
         directed_weighted_graph gg = _ar.getGraph();
         Iterator<node_data> iter = gg.getV().iterator();
         while (iter.hasNext()) {
             node_data n = iter.next();
-            g.setColor(Color.blue);
+            g.setColor(new Color(9, 9, 146, 255));
             drawNode(n, 5, g);
             Iterator<edge_data> itr = gg.getE(n.getKey()).iterator();
             while (itr.hasNext()) {
@@ -128,17 +105,28 @@ public class Window extends JFrame {
     }
 
     private void drawPokemons(Graphics g) {
-        for (Pokemon p : _ar.getPokemons()) {
-            Point3D location = p.getLocation();
-            int r = 10;
-            g.setColor(Color.green);
-            if (p.getType() < 0) {
-                g.setColor(Color.orange);
+        List<Pokemon> pokemons = _ar.getPokemons();
+        if (pokemons != null) {
+            Iterator<Pokemon> pokemonIterator = pokemons.iterator();
+            while (pokemonIterator.hasNext()) {
+                Pokemon current = pokemonIterator.next();
+                Point3D p = current.getLocation();
+                int ratio = 10;
+                Graphics2D graphics2D = (Graphics2D) g;
+                Toolkit toolkit = Toolkit.getDefaultToolkit();
+                Image first = toolkit.getImage("Pics\\ppika.png");
+                Image second = toolkit.getImage("Pics\\pika.png");
+
+                Image i = second;
+
+                if (current.getType() < 0) {
+                    i = first;
+                }
+                if (p != null) {
+                    geo_location pl = this._w2f.world2frame(p);
+                    graphics2D.drawImage(i, (int) pl.x() - ratio, (int) pl.y() - (ratio + 15), 4 * ratio, 4 * ratio, this);
+                }
             }
-            geo_location converted_pos = _w2f.world2frame(location);
-            int x = (int) converted_pos.x() - r;
-            int y = (int) converted_pos.y() - r;
-            g.fillOval(x, y, 2 * r, 2 * r);
         }
     }
 
@@ -148,7 +136,7 @@ public class Window extends JFrame {
         int i = 0;
         Graphics2D graphics2D = (Graphics2D) g;
         Toolkit toolkit = Toolkit.getDefaultToolkit();
-        Image agent = toolkit.getImage("Pics\\ketch.png");
+        Image agent = toolkit.getImage("Pics\\ash.png");
         while (rs != null && i < rs.size()) {
             geo_location c = rs.get(i).getAgentLocation();
             int r = 8;
@@ -179,6 +167,29 @@ public class Window extends JFrame {
         geo_location s0 = this._w2f.world2frame(s);
         geo_location d0 = this._w2f.world2frame(d);
         g.drawLine((int) s0.x(), (int) s0.y(), (int) d0.x(), (int) d0.y());
+    }
+
+
+    public class ImageLoader extends JPanel {
+
+        private JFrame frame;
+        private ImageIcon icon;
+        private JLabel label;
+
+
+        public ImageLoader() {
+            frame = new JFrame("Game");
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            try {
+                icon = new ImageIcon(getClass().getResource("forest.jpg"));
+                label = new JLabel(icon);
+                frame.add(label);
+            } catch (Exception e) {
+                System.out.println("Nope");
+            }
+            frame.pack();
+            frame.setVisible(true);
+        }
     }
 }
 
