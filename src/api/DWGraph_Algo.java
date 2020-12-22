@@ -251,46 +251,11 @@ public class DWGraph_Algo implements dw_graph_algorithms {
      * @return true iff it's possible to reach all of the vertices in the graph from the given vertex.
      */
 
-//    private boolean BFS(int src) {
-//        if (algo.nodeSize() == 0 || algo.nodeSize() == 1) {
-//            return true;
-//        } // a graph with only one vertex is connected.
-//        if (this.algo.nodeSize() > this.algo.edgeSize() + 1) {
-//            return false;
-//        } // if in a directed graph the number of vertices is greater than the edges number even by 1 the graph isn't connected.
-//        setGraph(); // setting the node tags to -1 (unvisited)
-//        int counter = 0;
-//        Queue<node_data> q = new LinkedList<>(); // queue to hold the nodes to be explored
-//        node_data v = algo.getNode(src); // the first node to start to algorithm from
-//        v.setTag(0); // setting its tag to 0 (visited)
-//
-//        q.add(v); // adding it to the queue
-//        while (!q.isEmpty()) {
-//            node_data current = q.poll(); // extract the current node from the queue
-//            counter++;
-//            for (edge_data e : algo.getE(current.getKey())) { // iterating over the current node OUT degree edges
-//                node_data w = algo.getNode(e.getDest()); // current node neighbor
-//                if (w.getTag() == -1) { // if it hadn't been visited yet
-//                    q.add(w); // add it to the queue
-//                    w.setTag(0); // mark him as visited
-//                }
-//            }
-//        }
-//        if (counter == algo.nodeSize()) { // the amount of times that we extract a node from the graph needs to be the same amount of vertices in the graph.
-//            return true;
-//        }
-//        return false;
-//    }
-
-//    /**
-//     * Setting the graphs' nodes tags to -1 to mark them as unvisited for both BFS and shortestPath methods.
-//     */
-
     private boolean Bfs(directed_weighted_graph g, node_data src) {
         VisitedOrNot(UNVISITED, g);
         BFS(src, g);
         for (node_data v : g.getV()) {
-            if (v.getInfo() == UNVISITED) return false;
+            if (v.getInfo().equals(UNVISITED)) return false;
         }
         return true;
     }
@@ -304,7 +269,7 @@ public class DWGraph_Algo implements dw_graph_algorithms {
             node_data current = q.poll();
             for (edge_data e : g.getE(current.getKey())) {
                 node_data w = g.getNode(e.getDest());
-                if (w.getInfo() == UNVISITED) {
+                if (w.getInfo().equals(UNVISITED)) {
                     q.add(w);
                     w.setInfo(VISITED);
                 }
@@ -318,6 +283,12 @@ public class DWGraph_Algo implements dw_graph_algorithms {
             u.setWeight(w);
         }
     }
+
+    /**
+     * Generate a new DWGraph_DS with the opposite directions of the edges of the original graph.
+     * @param g - the graph to initiate the method on.
+     * @return the new DWGraph_DS graph.
+     */
 
     private directed_weighted_graph transposedGraph(directed_weighted_graph g) {
         directed_weighted_graph answer = new DWGraph_DS();

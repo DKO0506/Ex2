@@ -20,10 +20,7 @@ import java.util.List;
 
 
 /**
- * This class represents a very simple GUI class to present a
- * game on a graph - you are welcome to use this class - yet keep in mind
- * that the code is not well written in order to force you improve the
- * code and not to take it "as is".
+ * This class represents a GUI class to project a game level on a graph.
  */
 public class Window extends JFrame {
     private int _ind;

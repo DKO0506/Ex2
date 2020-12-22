@@ -17,8 +17,18 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- *
- *
+ * This class represents the arena of the given game level that is running thru the threads.
+ * The arena is reordered by the graph that's accociated with the level chosen, such as the weight of the edges in the graph
+ * as well as the number of Agents and Pokemons available in the stage.
+ * The fields used in the class:
+    *  directed_weighted_graph _gg
+    *  List<Agent> _agents
+    *  List<Pokemon> _pokemons
+    *  List<String> _info
+    *  int level
+    *  int score
+    *  int totalMoves
+    *  int timer
  */
 @SuppressWarnings("ALL")
 public class Arena {
@@ -34,7 +44,7 @@ public class Arena {
     private int totalMoves;
     private long timer;
 
-
+    // Constructors
 
     public Arena() {;
         _info = new ArrayList<String>();
@@ -44,6 +54,9 @@ public class Arena {
         this.setAgents(r);
         this.setPokemons(p);
     }
+
+    //Getters & Setters
+
     public void setPokemons(List<Pokemon> f) {
         this._pokemons = f;
     }
@@ -114,7 +127,12 @@ public class Arena {
     }
 
 
-    ////////////////////////////////////////////////////
+    /**
+     * Generating the Agent objects reffered to the given graph
+     * @param aa - String Json to exctract data from to create the new Agents
+     * @param gg - the graph to assighn them to.
+     * @return
+     */
     public static List<Agent> getAgents(String aa, directed_weighted_graph gg) {
         ArrayList<Agent> ans = new ArrayList<Agent>();
         try {
