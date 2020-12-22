@@ -34,7 +34,7 @@ public class Arena {
     private int totalMoves;
     private long timer;
 
-
+    // Constructors
 
     public Arena() {;
         _info = new ArrayList<String>();
@@ -44,6 +44,9 @@ public class Arena {
         this.setAgents(r);
         this.setPokemons(p);
     }
+
+    //Getters & Setters
+
     public void setPokemons(List<Pokemon> f) {
         this._pokemons = f;
     }
@@ -114,7 +117,12 @@ public class Arena {
     }
 
 
-    ////////////////////////////////////////////////////
+    /**
+     * Generating the Agent objects reffered to the given graph
+     * @param aa - String Json to exctract data from to create the new Agents
+     * @param gg - the graph to assighn them to.
+     * @return
+     */
     public static List<Agent> getAgents(String aa, directed_weighted_graph gg) {
         ArrayList<Agent> ans = new ArrayList<Agent>();
         try {

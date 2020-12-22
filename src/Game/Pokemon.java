@@ -4,6 +4,17 @@ import api.*;
 
 import org.json.JSONObject;
 
+/**
+ * This class Represents the Pokemon inside the game. The Pokemon consists of these fields:
+    * edge_data edge
+    * double value
+    * int type
+    * Point3D location
+    * boolean aimOn
+    * double minDist
+    * int min_ro
+ * More explanation about the use of it is in the Game Guide in the Docs folder.
+ */
 @SuppressWarnings("ALL")
 public class Pokemon {
     private edge_data edge;

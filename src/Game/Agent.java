@@ -59,6 +59,12 @@ public class Agent {
         }
     }
 
+    public boolean isMoving() {
+        return this.currentEdge != null;
+    }
+
+
+    // Stters & Getters
 
     private void setMoney(double v) {
         value = v;
@@ -88,19 +94,6 @@ public class Agent {
 
     public void setCurrNode(int src) {
         this.currentVertex = graph.getNode(src);
-    }
-
-    public boolean isMoving() {
-        return this.currentEdge != null;
-    }
-
-    public String toString() {
-        return toJSON();
-    }
-
-    public String toString1() {
-        String ans = "" + this.getID() + "," + agentPosition + ", " + isMoving() + "," + this.getValue();
-        return ans;
     }
 
     public int getID() {
@@ -149,38 +142,6 @@ public class Agent {
         this.currentEdge = currentEdge;
     }
 
-    public void set_SDT(long ddtt) {
-        long ddt = ddtt;
-        if (this.currentEdge != null) {
-            double w = getCurrentEdge().getWeight();
-            geo_location dest = graph.getNode(getCurrentEdge().getDest()).getLocation();
-            geo_location src = graph.getNode(getCurrentEdge().getSrc()).getLocation();
-            double de = src.distance(dest);
-            double dist = agentPosition.distance(dest);
-            if (this.get_curr_fruit().getEdge() == this.getCurrentEdge()) {
-                dist = startPointTreatPokemon.getLocation().distance(this.agentPosition);
-            }
-            double norm = dist / de;
-            double dt = w * norm / this.getSpeed();
-            ddt = (long) (1000.0 * dt);
-        }
-        this.set_sg_dt(ddt);
-    }
-
-    public String toJSON() {
-        int d = this.getNextNode();
-        String ans = "{\"Agent\":{"
-                + "\"id\":" + this.ID + ","
-                + "\"value\":" + this.value + ","
-                + "\"src\":" + this.currentVertex.getKey() + ","
-                + "\"dest\":" + d + ","
-                + "\"speed\":" + this.getSpeed() + ","
-                + "\"pos\":\"" + agentPosition.toString() + "\""
-                + "}"
-                + "}";
-        return ans;
-    }
-
     public long get_sg_dt() {
         return _sg_dt;
     }
@@ -203,5 +164,46 @@ public class Agent {
 
     public void setChased(boolean chased) {
         isChased = chased;
+    }
+
+    public void set_SDT(long ddtt) {
+        long ddt = ddtt;
+        if (this.currentEdge != null) {
+            double w = getCurrentEdge().getWeight();
+            geo_location dest = graph.getNode(getCurrentEdge().getDest()).getLocation();
+            geo_location src = graph.getNode(getCurrentEdge().getSrc()).getLocation();
+            double de = src.distance(dest);
+            double dist = agentPosition.distance(dest);
+            if (this.get_curr_fruit().getEdge() == this.getCurrentEdge()) {
+                dist = startPointTreatPokemon.getLocation().distance(this.agentPosition);
+            }
+            double norm = dist / de;
+            double dt = w * norm / this.getSpeed();
+            ddt = (long) (1000.0 * dt);
+        }
+        this.set_sg_dt(ddt);
+    }
+
+    public String toString() {
+        return toJSON();
+    }
+
+    public String toJSON() {
+        int d = this.getNextNode();
+        String ans = "{\"Agent\":{"
+                + "\"id\":" + this.ID + ","
+                + "\"value\":" + this.value + ","
+                + "\"src\":" + this.currentVertex.getKey() + ","
+                + "\"dest\":" + d + ","
+                + "\"speed\":" + this.getSpeed() + ","
+                + "\"pos\":\"" + agentPosition.toString() + "\""
+                + "}"
+                + "}";
+        return ans;
+    }
+
+    public String toString1() {
+        String ans = "" + this.getID() + "," + agentPosition + ", " + isMoving() + "," + this.getValue();
+        return ans;
     }
 }
