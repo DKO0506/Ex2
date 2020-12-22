@@ -17,8 +17,18 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- *
- *
+ * This class represents the arena of the given game level that is running thru the threads.
+ * The arena is reordered by the graph that's accociated with the level chosen, such as the weight of the edges in the graph
+ * as well as the number of Agents and Pokemons available in the stage.
+ * The fields used in the class:
+    *  directed_weighted_graph _gg
+    *  List<Agent> _agents
+    *  List<Pokemon> _pokemons
+    *  List<String> _info
+    *  int level
+    *  int score
+    *  int totalMoves
+    *  int timer
  */
 @SuppressWarnings("ALL")
 public class Arena {
