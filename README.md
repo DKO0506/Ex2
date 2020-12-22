@@ -11,8 +11,8 @@ Second part of the exercise is a simulation of a Pokemons Game where the methods
 
 
 ***
-#Project pakages and classes:
-###Pakage: src/api
+  #Project pakages and classes:
+  ###Pakage: src/api
 
 
 Class | Interface                   
