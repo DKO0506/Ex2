@@ -26,8 +26,7 @@ import java.util.*;
 public class DWGraph_Algo implements dw_graph_algorithms {
 
     private directed_weighted_graph algo;
-    private static final String VISITED = "V";
-    private static final String UNVISITED = "U";
+
     //// Constructors
     public DWGraph_Algo() {
         algo = new DWGraph_DS();
