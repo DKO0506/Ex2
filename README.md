@@ -1,4 +1,4 @@
-#Pokemons Game - A Two Part OOP Project
+# Pokemons Game - A Two Part OOP Project
 
 **Authors: David Kokiashvilli & Dor Yaakobi**
 
@@ -11,8 +11,8 @@ Second part of the exercise is a simulation of a Pokemons Game where the methods
 
 
 ***
-  #Project pakages and classes:
-  ###Pakage: src/api
+  # Project pakages and classes:
+  ### Pakage: src/api
 
 
 Class | Interface                   
@@ -60,7 +60,7 @@ calculated routes paths in order to reach the destination node in less steps as 
 
 
 
-###Pakage: src/Game
+### Pakage: src/Game
 
 Class | How it's implemented
 ------------ | -------------                    
