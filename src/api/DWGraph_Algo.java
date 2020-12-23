@@ -156,51 +156,22 @@ public class DWGraph_Algo implements dw_graph_algorithms {
 
     @Override
     public List<node_data> shortestPath(int src, int dest) {
-
-        List<node_data> ans = new ArrayList<>(); // the list to contain the path
-        if (src == dest) return ans; // the path of a node to itself equals to 0 therefore the list is empty
-        if (algo.getNode(src) == null || algo.getNode(dest) == null) return null;
-
-
-        for (node_data v : algo.getV()) {
-            v.setWeight(Double.POSITIVE_INFINITY);
-            v.setTag(-1);
-        } // setting all the vertices in the graph to a distance (weight) value of infinty and the tag to -1 (unvisited)
-        node_data start = algo.getNode(src); // drawing the source node_data
-        start.setWeight(0); // setting its weight to 0
-        PriorityQueue<node_data> pq = new PriorityQueue<>((o1, o2) -> (int) (o1.getWeight() - o2.getWeight())); // the queue prioritize the next node to be explored by comparing the weight of distances
-        HashMap<Integer, node_data> prev = new HashMap<>(); // a hashmap is used to determain the last node that the current node was sent from (the shortest path to it).
-        pq.add(start);
-
-        prev.put(src, start); // updates the current node last source
-        while (!pq.isEmpty()) {
-            node_data current = pq.remove();
-            current.setTag(0);
-            for (edge_data e : algo.getE(current.getKey())) {
-                node_data neighbor = algo.getNode(e.getDest()); // drawing the neighbors of the current node.
-                if (neighbor.getTag() == -1) {
-                    double w = current.getWeight() + e.getWeight(); // updating the edge of the node to its
-                    if (neighbor.getWeight() > w) { // in case the known weight of the neighbor is greater
-                        neighbor.setWeight(w);
-                        neighbor.setTag(0);
-                        pq.add(neighbor);
-
-                        prev.put(neighbor.getKey(), current); // updating the last know node with the shortest weight
-                    }
-                } // if the neighbor wasn't visited yet
-            } // for each node we explore its neighbors (being a directed graph there's a need to check the outward edges)
-        } // while the queue isn't empty
-        if (prev.get(dest) == null) return null;
-        while (prev.get(dest).getWeight() < Double.POSITIVE_INFINITY) { // the path
-            ans.add(algo.getNode(dest));
-            dest = prev.get(dest).getKey();
-            if (algo.getNode(dest).getKey() == src) {
-                ans.add(algo.getNode(src));
-                break;
+        List<node_data>answer=new LinkedList<>();
+        double shortDist=shortestPathDist(src,dest);
+        if (shortDist==-1)return null;
+        else if (shortDist==0){
+            answer.add(algo.getNode(src));
+            return answer;
+        }
+        else
+        {
+            String[] allThePaths=algo.getNode(dest).getInfo().split("_");
+            for (int i=0;i<allThePaths.length;i++){
+                Integer.parseInt(allThePaths[i]);
+                answer.add(algo.getNode((Integer.parseInt(allThePaths[i]))));
             }
         }
-        Collections.reverse(ans); // the list us updated using the hashmap of the last know node, so inorder to get the currect path we reverse it.
-        return ans;
+        return answer;
     }
 
     /**
