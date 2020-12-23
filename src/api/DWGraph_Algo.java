@@ -2,6 +2,7 @@ package api;
 
 import com.google.gson.*;
 import gameClient.util.Point3D;
+
 import java.io.*;
 import java.util.*;
 
@@ -10,17 +11,16 @@ import java.util.*;
  * DwGraph_Algo class implements the dw_graph_algo interface of exploring directed weighted graphs.
  * The class uses the DWGraph_DS to create a directed weighted graph structure to implement the algorithms to apply on the graph.
  * Class Methods:
-    * Constructor
-    * Init - initializing the graph structure to perform the methods.
-    * getGraph - returns the graph which is manipulated.
-    * copy - computes a deep copy of a graph
-    * isConnected - a two part method that uses the BFS method as well to check connectivity.
-    * shortestPath - a method to calculate the shortest path between two nodes and return a List of it.
-    * shortestPathDist - calculating the distance between two nodes and returns the double value of it.
-    * save - creates a new Json file format to a relative filepath (by default in the repository) with the data of the specific graph.
-    * load - loads a new DWGraph_Algo object from a Jsom file format.
+ * Constructor
+ * Init - initializing the graph structure to perform the methods.
+ * getGraph - returns the graph which is manipulated.
+ * copy - computes a deep copy of a graph
+ * isConnected - a two part method that uses the BFS method as well to check connectivity.
+ * shortestPath - a method to calculate the shortest path between two nodes and return a List of it.
+ * shortestPathDist - calculating the distance between two nodes and returns the double value of it.
+ * save - creates a new Json file format to a relative filepath (by default in the repository) with the data of the specific graph.
+ * load - loads a new DWGraph_Algo object from a Jsom file format.
  */
-
 
 
 public class DWGraph_Algo implements dw_graph_algorithms {
@@ -35,6 +35,7 @@ public class DWGraph_Algo implements dw_graph_algorithms {
 
     /**
      * Initialize the directed_weighted_graph to a DWGraph_Algo to implement the methods on.
+     *
      * @param g - an object that implements the directed_weighted_graph interface to init the methods on.
      */
     @Override
@@ -49,6 +50,7 @@ public class DWGraph_Algo implements dw_graph_algorithms {
 
     /**
      * copy creates a new DWGraph_DS deep copy of the DWGraph_Algo that the function was executed on.
+     *
      * @return a new DWGraph_DS with the exact data as the other one.
      */
     @Override
@@ -59,68 +61,95 @@ public class DWGraph_Algo implements dw_graph_algorithms {
     /**
      * isConnected method uses the BFS algorithm while iterating over all of the nodes existing in the graph.
      * given the graph that's being explored using this method complexity is high.
+     *
      * @return true iff it is possible to reach all the nodes from every node.
      */
     @Override
     public boolean isConnected() {
-        int counter=0;
-        int V=algo.nodeSize();
-        Queue<node_data>queue=new LinkedList<>();
-        node_data start=null;
+        int counter = 0;
+        int V = algo.nodeSize();
+        Queue<node_data> queue = new LinkedList<>();
+        node_data start = null;
         resetAllTags(-1);
-        boolean isIt=true;
-        for (node_data v:algo.getV()){
-            start=v;
-            if (start==null){
+        boolean isIt = true;
+        for (node_data v : algo.getV()) {
+            start = v;
+            if (start == null) {
                 return true;
             }
             queue.add(start);
             start.setTag(0);
-            while (!queue.isEmpty()){
-                node_data polled=queue.poll();
-                for (edge_data e: algo.getE(polled.getKey())){
-                    node_data nextNode=algo.getNode(e.getDest());
-                    if (nextNode.getTag() == -1){
+            while (!queue.isEmpty()) {
+                node_data polled = queue.poll();
+                for (edge_data e : algo.getE(polled.getKey())) {
+                    node_data nextNode = algo.getNode(e.getDest());
+                    if (nextNode.getTag() == -1) {
                         counter++;
                         nextNode.setTag(0);
                         queue.add(nextNode);
                     }
                 }
             }
-            if (V!=counter){
-                isIt=false;
+            if (V != counter) {
+                isIt = false;
                 break;
             }
             resetAllTags(-1);
-            counter=0;
+            counter = 0;
         }
         return isIt;
     }
 
     /**
      * calculates the double value of the distance between two nodes. usnig the shortestPath method to obtain the List of the shortest path and sizing it.
-     * @param src - start node.
+     *
+     * @param src  - start node.
      * @param dest - end (target) node.
      * @return - the size of the list that is the shortest path.
      */
     @Override
     public double shortestPathDist(int src, int dest) {
+        HashMap<Integer, Double> dist = new HashMap<>();
+        Queue<node_data> queue = new LinkedList<>();
+        if (algo.getNode(src) == null || algo.getNode(dest) == null) return -1;
         if (src == dest) return 0;
-        if (shortestPath(src, dest) != null) return shortestPath(src, dest).size();
-        return -1.0;
+        for (node_data v : algo.getV()) {
+            v.setInfo("");
+        }
+        queue.add(algo.getNode(src));
+        dist.put(src, 0.0);
+        algo.getNode(src).setInfo(algo.getNode(src).getKey() + "");
+        while (!queue.isEmpty()) {
+            node_data polled = queue.poll();
+            for (edge_data e : algo.getE(polled.getKey())) {
+                node_data nextNode = algo.getNode(e.getDest());
+                double w = dist.get(e.getSrc()) + e.getWeight();
+                if (!dist.containsKey(e.getDest()) || dist.get(e.getDest()) > w) {
+                    dist.put(e.getDest(), w);
+                    algo.getNode(e.getDest()).setInfo(polled.getInfo() + "_" + algo.getNode(e.getDest()).getKey());
+                    queue.add(nextNode);
+                }
+            }
+        }
+
+        if (!dist.containsKey(dest)) return -1;
+
+        return dist.get(dest);
+
     }
 
     /**
      * Calculating the shortest path between two nodes using Dijkstra's algorithm to explore the graph.
      * Dijkstra's algorithm is simplified by these steps:
-        * Set the distance for the current node to 0 (its own weight rather than its edges weight).
-        * Set all distances (in this case the weight of the edge to infinty) for each node in the graph.
-        * Visit all of the current node neighbors with the smallest known distance.
-        * If the current known distance is smaller thanthe last known distance update the distance to the current distance.
-        * Update the previous node for each of the updated distances
-        * Add the current node to the list of visited nodes
-        * Repeat all previous steps until all nodes are marked as visited.
-     * @param src - start node
+     * Set the distance for the current node to 0 (its own weight rather than its edges weight).
+     * Set all distances (in this case the weight of the edge to infinty) for each node in the graph.
+     * Visit all of the current node neighbors with the smallest known distance.
+     * If the current known distance is smaller thanthe last known distance update the distance to the current distance.
+     * Update the previous node for each of the updated distances
+     * Add the current node to the list of visited nodes
+     * Repeat all previous steps until all nodes are marked as visited.
+     *
+     * @param src  - start node
      * @param dest - end (target) node
      * @return a list containing the path of the path. {v/in V | the vertex in the path }
      */
@@ -129,8 +158,8 @@ public class DWGraph_Algo implements dw_graph_algorithms {
     public List<node_data> shortestPath(int src, int dest) {
 
         List<node_data> ans = new ArrayList<>(); // the list to contain the path
-        if(src == dest) return ans; // the path of a node to itself equals to 0 therefore the list is empty
-        if(algo.getNode(src) == null || algo.getNode(dest) == null) return null;
+        if (src == dest) return ans; // the path of a node to itself equals to 0 therefore the list is empty
+        if (algo.getNode(src) == null || algo.getNode(dest) == null) return null;
 
 
         for (node_data v : algo.getV()) {
@@ -178,6 +207,7 @@ public class DWGraph_Algo implements dw_graph_algorithms {
      * This method saves a DWGraph_Algo object in a Json format file containing the information of all other objects used to create the graph.
      * The graph is saved as a Json object to which we assign JsonArrays containing Json objects that make the graph (edge_data, node_data).
      * Gson library is used to manipulate the JSON format into a File and using the FileWriter to write to the new File created.
+     *
      * @param file - the file name (may include a relative path) of the location to save the Json File. (inside project directory if a path wasn't assigned)
      * @return true iff the process of saving the file was accomplished.
      */
@@ -222,6 +252,7 @@ public class DWGraph_Algo implements dw_graph_algorithms {
     /**
      * This method loads a new DWGraph_Algo java object from a Json file format. Using FileReader to extract the information in the json text format a new JsonParser is created
      * to convert the text to an Object. Using the methods of Gson library the JsonArrays are created from the file that is read to devide it to the elements that compose the graph (edge_data,node_data).
+     *
      * @param file - file name of JSON file (could also be the file path).
      * @return true iff the load of the new DWGraph_Algo was successful.
      */
@@ -272,10 +303,10 @@ public class DWGraph_Algo implements dw_graph_algorithms {
      * as sign that the node isn't visited yet.
      */
 
-    private void resetAllTags(int t){
-        for (node_data v:algo.getV()){
+    private void resetAllTags(int t) {
+        for (node_data v : algo.getV()) {
             v.setTag(t);
         }
-   }
+    }
 
 }
