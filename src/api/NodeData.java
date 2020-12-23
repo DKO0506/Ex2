@@ -5,13 +5,19 @@ import gameClient.util.Point3D;
 
 import java.util.Objects;
 
-public class NodeData implements node_data, Comparable {
+public class NodeData implements node_data {
+
+    static int i=0;
     private int key;
     private int tag;
     private geo_location nodeLocation;
     private double weight;
     private String info;
 
+    public NodeData(){
+        key=i++;
+        nodeLocation=new Point3D(0,0,0);
+    }
     public NodeData(int id) {
         this.key = id;
         this.nodeLocation = new Point3D(0, 0, 0);
@@ -90,9 +96,5 @@ public class NodeData implements node_data, Comparable {
                 '}';
     }
 
-    @Override
-    public int compareTo(Object o) {
-        NodeData n = (NodeData) o;
-        return (int) (weight - n.weight);
-    }
+
 }

@@ -67,7 +67,7 @@ public class DWGraph_Algo implements dw_graph_algorithms {
     @Override
     public boolean isConnected() {
         int counter = 0;
-        int V = algo.nodeSize();
+        int V = algo.getV().size();
         Queue<node_data> queue = new LinkedList<>();
         node_data start = null;
         resetAllTags(-1);
@@ -79,11 +79,12 @@ public class DWGraph_Algo implements dw_graph_algorithms {
             }
             queue.add(start);
             start.setTag(0);
+            counter++;
             while (!queue.isEmpty()) {
                 node_data polled = queue.poll();
                 for (edge_data e : algo.getE(polled.getKey())) {
                     node_data nextNode = algo.getNode(e.getDest());
-                    if (nextNode.getTag() == -1) {
+                    if (nextNode.getTag() !=0) {
                         counter++;
                         nextNode.setTag(0);
                         queue.add(nextNode);
