@@ -1,15 +1,18 @@
 package Game;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class Lets implements ActionListener {
+public class Lets extends JPanel implements ActionListener {
     private static JLabel idLabel;
     private static JTextField idText;
     private static JLabel levelLabel;
     private static JTextField levelText;
     private static JButton button;
+
+
 
     public static void main(String[] args) {
         JPanel panel = new JPanel();
@@ -54,7 +57,7 @@ public class Lets implements ActionListener {
             Thread Ex2Client = new Thread(new MyGame(level));
             Ex2Client.start();
         } catch (NumberFormatException numberFormatException) {
-            System.out.println("ID should contains only numbers");
+            System.out.println("Error");
 
         }
     }
