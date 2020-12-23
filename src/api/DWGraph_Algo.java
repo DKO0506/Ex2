@@ -64,16 +64,38 @@ public class DWGraph_Algo implements dw_graph_algorithms {
      */
     @Override
     public boolean isConnected() {
-        node_data check = algo.getV().iterator().next();
-        if (algo.nodeSize() == 0 || algo.nodeSize() == 1) {
-            return true;
+        int counter=0;
+        int V=algo.nodeSize();
+        Queue<node_data>queue=new LinkedList<>();
+        node_data start=null;
+        resetAllTags(-1);
+        boolean isIt=true;
+        for (node_data v:algo.getV()){
+            start=v;
+            if (start==null){
+                return true;
+            }
+            queue.add(start);
+            start.setTag(0);
+            while (!queue.isEmpty()){
+                node_data polled=queue.poll();
+                for (edge_data e: algo.getE(polled.getKey())){
+                    node_data nextNode=algo.getNode(e.getDest());
+                    if (nextNode.getTag() == -1){
+                        counter++;
+                        nextNode.setTag(0);
+                        queue.add(nextNode);
+                    }
+                }
+            }
+            if (V!=counter){
+                isIt=false;
+                break;
+            }
+            resetAllTags(-1);
+            counter=0;
         }
-        if (this.algo.nodeSize() > this.algo.edgeSize() + 1) {
-            return false;
-        }
-
-        directed_weighted_graph t = transposedGraph(algo);
-        return Bfs(algo, check) && Bfs(t, check);
+        return isIt;
     }
 
     /**
@@ -245,68 +267,16 @@ public class DWGraph_Algo implements dw_graph_algorithms {
         return algo.toString();
     }
 
-    /**
-     * BFS algorithm to explore the graph.
-     * @param src - the node (vertex) from which the algorithm starts to explore from.
-     * @return true iff it's possible to reach all of the vertices in the graph from the given vertex.
-     */
-
-    private boolean Bfs(directed_weighted_graph g, node_data src) {
-        VisitedOrNot(UNVISITED, g);
-        BFS(src, g);
-        for (node_data v : g.getV()) {
-            if (v.getInfo().equals(UNVISITED)) return false;
-        }
-        return true;
-    }
-
-    private void BFS(node_data src, directed_weighted_graph g) {
-        Queue<node_data> q = new LinkedList<>();
-        node_data v = src;
-        v.setInfo(VISITED);
-        q.add(v);
-        while (!q.isEmpty()) {
-            node_data current = q.poll();
-            for (edge_data e : g.getE(current.getKey())) {
-                node_data w = g.getNode(e.getDest());
-                if (w.getInfo().equals(UNVISITED)) {
-                    q.add(w);
-                    w.setInfo(VISITED);
-                }
-            }
-        }
-
-    }
-
-    private void setGraph(double w) {
-        for (node_data u : algo.getV()) {
-            u.setWeight(w);
-        }
-    }
 
     /**
-     * Generate a new DWGraph_DS with the opposite directions of the edges of the original graph.
-     * @param g - the graph to initiate the method on.
-     * @return the new DWGraph_DS graph.
+     * resetting all the tags of the graph to -1
+     * as sign that the node isn't visited yet.
      */
 
-    private directed_weighted_graph transposedGraph(directed_weighted_graph g) {
-        directed_weighted_graph answer = new DWGraph_DS();
-        for (node_data i : g.getV()) {
-            answer.addNode(new NodeData(i.getKey()));
+    private void resetAllTags(int t){
+        for (node_data v:algo.getV()){
+            v.setTag(t);
         }
-        for (node_data i : g.getV()) {
-            for (edge_data e : g.getE(i.getKey())) {
-                answer.connect(e.getDest(), i.getKey(), e.getWeight());
-            }
-        }
-        return answer;
-    }
-
-    private void VisitedOrNot(String str, directed_weighted_graph g) {
-        for (node_data v : g.getV()) {
-            v.setInfo(str);
-        }
-    }
+   }
 
 }
