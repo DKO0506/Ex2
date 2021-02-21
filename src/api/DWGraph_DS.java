@@ -163,22 +163,5 @@ public class DWGraph_DS implements directed_weighted_graph {
         return ans;
     }
 
-    public static void main(String[] args) {
-        directed_weighted_graph G = new DWGraph_DS();
-        G.addNode(new NodeData(2));
-        G.addNode(new NodeData(3));
-        G.addNode(new NodeData(0));
-        G.addNode(new NodeData(1));
-
-        G.connect(0, 3, 10);
-        G.connect(0, 2, 10);
-        G.connect(0, 1, 10);
-
-
-        G.removeNode(0);
-
-        directed_weighted_graph o = new DWGraph_DS(G);
-        System.out.println(G);
-        System.out.println(o.equals(G));
-    }
+    
 }
